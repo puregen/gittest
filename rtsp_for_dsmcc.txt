@@ -1,0 +1,81 @@
+Transport: clab-MP2T/QAM ==> RTSP for DSMCC
+
+
+
+
+
+
+
+SETUP rtsp://192.168.0.1:1554/test.mpg
+CSeq: 2
+clab-CasInfo: cas_id=A0C3 ca_blob=0123456789ABCDEF
+Transport: clab-MP2T/QAM; unicast; x-external-cellid-upper=200;x-external-cellid-lower=100;x-service-group-id=100;x-service-priority-id=5;x-service-priority-criteria-id=3;x-candidate-tsids=2000,2001;x-clientid=333
+x-resetup: 
+Session: AB70A65C-F568-46E0-9F3B-6EAC85DCFFB8
+
+
+
+
+
+
+RTSP/1.0 301 Moved Permanently
+CSeq: 2
+Location: rtsp://192.168.0.2:554/test.mpg?someparam
+Transport: clab-MP2T/QAM; unicast; destination=192.168.0.12; destination_port=5823; qam_destination=50000000.20
+
+
+
+SETUP rtsp://192.168.0.2:554/test.mpg?someparam
+CSeq: 3
+Transport: RAW/RAW/UDP; unicast; destination=192.168.0.12; destination_port=5823; qam_destination=50000000.20
+
+
+
+RTSP/1.0 200 OK
+CSeq: 3
+Transport: RAW/RAW/UDP; unicast; destination=192.168.0.12; destination_port=5823; qam_destination=50000000.20
+Session: AB70A65C-F568-46E0-9F3B-6EAC85DCFFB8
+
+
+
+
+=======================================
+** check god resetup...
+
+resetup
+
+set pSessionSetupQueueData->m_UUSessionIDForERM 
+
+
+CSMPoolThread->ListenQueueERMRTSPSetup > m_pEdgeResourceManager->m_pEdgeResourceConfirm->AllocateERMSessionResource
+=> set sessionid
+
+
+CEdgeResourceConfirm->AllocateERMSessinoResource > m_pEdgeResourceManager->m_pERMResource->InsertERMSessionResource
+=> set sessionid
+
+
+CERMResource->InsertERMSessionResource
+=> find sessionid from CERMResource->m_ERMSessionList
+
+
+
+if find session from ermsession
+=> if changed assetid or bandwidth
+	=> update assigned channel bandwidth / update current cell bandwidth
+=> else update session id
+
+
+
+
+
+
+
+=======================================
+
+
+TEARDOWN (GOD only..)
+=> release erm resource
+
+session release notify
+=> release erm resource
